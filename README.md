@@ -22,13 +22,13 @@ Here's what the house looks like when viewed from some +Z location in front of t
 
 ### Q1.1 Basic translation
 
-Here's a simple translation matrix.  Draw a picture of the house to show what it would look like if transformed by this matrix.
+Here's a simple translation matrix.  Draw a picture of the house to show what it would look like if transformed by this matrix, and then add it as an image in this markdown file.
 
-```
-Matrix4 trans = Matrix4::Translation(Vector3(0.0, 0.5, 0.0));
+```typescript
+let translation = new THREE.Matrix4().makeTranslation(0.0, 0.5, 0.0);
 ```
 
-![House transformed by trans](D:\Projects\Teaching\CSCI-4611-Fall-2021\instructor-repo\worksheets\file path to your image)
+![House transformed by translation](./images/file-path-to-your-image)
 
 
 
@@ -36,11 +36,11 @@ Matrix4 trans = Matrix4::Translation(Vector3(0.0, 0.5, 0.0));
 
 Here's a simple scaling matrix.  Draw a picture to show what the original house would look like if transformed by this matrix.
 
-```
-Matrix4 scale = Matrix4::Scale(Vector3(2.0, 1.0, 1.0));
+```typescript
+let scale = new THREE.Matrix4().makeScale(2.0, 1.0, 1.0);
 ```
 
-![House transformed by scale](D:\Projects\Teaching\CSCI-4611-Fall-2021\instructor-repo\worksheets\file path to your image)
+![House transformed by scale](./images/file-path-to-your-image)
 
 
 
@@ -48,11 +48,11 @@ Matrix4 scale = Matrix4::Scale(Vector3(2.0, 1.0, 1.0));
 
 Here's a simple rotation matrix.  Draw a picture to show what the original house would look like if transformed by this matrix.
 
-```
-Matrix4 rot = Matrix4::RotateZ(GfxMath::toRadians(45.0));
+```typescript
+let rotation = new THREE.Matrix4().makeRotationZ(45 * Math.PI / 180);
 ```
 
-![House transformed by rot](D:\Projects\Teaching\CSCI-4611-Fall-2021\instructor-repo\worksheets\file path to your image)
+![House transformed by rotation](./images/file-path-to-your-image)
 
 
 
@@ -60,11 +60,14 @@ Matrix4 rot = Matrix4::RotateZ(GfxMath::toRadians(45.0));
 
 Now, let's take a look at different compositions of the basic matrices above.  Draw a picture to show what the original house would look like if transformed by the following matrix.
 
-```
-Matrix4 combo1 = trans * scale * rot;
+```typescript
+let combo1 = new THREE.Matrix4();
+combo1.multiply(rotation);
+combo1.multiply(scale);
+combo1.multiply(translation);
 ```
 
-![House transformed by combo1](D:\Projects\Teaching\CSCI-4611-Fall-2021\instructor-repo\worksheets\file path to your image)
+![House transformed by combo1](./images/file-path-to-your-image)
 
 
 
@@ -72,11 +75,14 @@ Matrix4 combo1 = trans * scale * rot;
 
 Let's try another.  Draw a picture to show what the original house would look like if transformed by the following matrix.
 
-```
-Matrix4 combo2 = rot * scale * trans;
+```typescript
+let combo2 = new THREE.Matrix4();
+combo1.multiply(translation);
+combo1.multiply(scale);
+combo1.multiply(rotation);
 ```
 
-![House transformed by combo2](file path to your image)
+![House transformed by combo2](./images/file-path-to-your-image)
 
 
 
@@ -96,50 +102,42 @@ The diagram below illustrates this concept with the simple case of a house.  It'
 
 It can be useful in these situations to define transformation matrices for moving from one coordinate space to another.  For example, given some point defined in the door's coordinate system, such as one of the vertices of the door, we could transform it into the siding's coordinate system like this:
 
-```
+```typescript
 // Transforms points in the door's coordinate system to the siding's coordinate system.
-Matrix4 doorToSiding = Matrix4::Translation(Vector3(0.5, -0.2, 0.0));
+let doorToSiding = new THREE.Matrix4().makeTranslation(0.5, -0.2, 0.0);
 
 // Imagine this is a vertex on the door
-Point3 ptInDoorSpace = (....);
-Point3 theSamePtExpressedInSidingSpace = doorToSiding * ptInDoorSpace;
+let ptInDoorSpace = new THREE.Vector3( .... );
+let theSamePtExpressedInSidingSpace = ptInDoorSpace.clone();
+theSamePtExpressedInSidingSpace.applyMatrix4(doorToSiding);
 ```
 
 Similarly, these matrices can convert between the other spaces we've talked about.
 
-```
-// Transforms points in the siding's coordinate system to the house's coordinate system.
-Matrix4 sidingToHouse = Matrix4::Translation(Vector3(0.0, 0.5, 0.0));
+```typescript
+// Transforms points in the siding's coordinate system to the house's coordinate system
+let sidingToHouse = new THREE.Matrix4().makeTranslation(0, 0.5, 0);
 
 // Transforms points in the house's coordinate system to the world's coordinate system.
-Matrix4 houseToWorld = Matrix4::Translation(Vector3(-1.0, 0.0, 0.0));
+let houseToWorld = new THREE.Matrix4().makeTranslation(-1.0, 0.0, 0.0);
 ```
 
+**How would you compose the matrices above to create a single matrix that will transform a point in "door space" all the way into "world space"?**
 
 
-### Q2.1 How would you compose the matrices above to create a single matrix that will transform a point in "door space" all the way into "world space"?
+Given the matrices above matrices and the scene graph defined in the image, first show the combined transformation from Door-Space into World-Space as a matrix multiplication, then show how to transform the point `pInDoorSpace` into World-Space. 
 
-
-Given the matrices above matrices and the scene graph defined in the image, first show the combined transformation from Door-Space into World-Space as a matrix multiplication, then show how to transform the point `pInDoorSpace` into World-Space. Lastly, show the numeric representation of `pInWorldSpace`.
-
-```
-// The magenta point `p` from the diagram, in Door-Space
-Point3 pInDoorSpace = Point3(0.2, 0.4, 0.0);
+```typescript
+// The magenta point p from the diagram, in Door-Space
+let pInDoorSpace = new THREE.Vector3(0.2, 0.4, 0);
 
 // Combined transformation from Door-Space -> World-Space
-Matrix4 doorSpaceToWorldSpace = /* --- Fill this in --- */
+let doorSpaceToWorldSpace = new THREE.Matrix4();
+/* --- Fill this in --- */
 
 // The point `p` in world space
-Point3 pInWorldSpace = /* --- Fill this in --- */
-```
-
-
-
-### Q2.2 Let's double-check your work now by calculate the actual "world space" coordinates for p.  Show what the following code would output:
-
-```
-std::cout << "p in World-Space: " << pInWorldSpace << std::endl;
-/* --- Fill in output for std::cout here --- */
+let pInWorldSpace = 
+/* --- Fill this in --- */
 ```
 
 
