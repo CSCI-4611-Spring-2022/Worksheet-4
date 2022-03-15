@@ -77,9 +77,9 @@ Let's try another.  Draw a picture to show what the original house would look li
 
 ```typescript
 let combo2 = new THREE.Matrix4();
-combo1.multiply(translation);
-combo1.multiply(scale);
-combo1.multiply(rotation);
+combo2.multiply(translation);
+combo2.multiply(scale);
+combo2.multiply(rotation);
 ```
 
 ![House transformed by combo2](./images/file-path-to-your-image)
